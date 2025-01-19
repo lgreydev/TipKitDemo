@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import TipKit
 
 struct ContentView: View {
+    
+    private let imageTip: ImageTip = ImageTip()
     
     @State private var imageName = "globe"
     @State private var textValue: String = "Hello, World!"
@@ -15,6 +18,8 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
+            TipView(imageTip)
+            
             Image(systemName: imageName)
                 .imageScale(.large)
                 .foregroundStyle(.tint)
@@ -29,6 +34,12 @@ struct ContentView: View {
             .bold()
         }
         .padding()
+    }
+}
+
+struct ImageTip: Tip {
+    var title: Text {
+        Text("This is Image view")
     }
 }
 
