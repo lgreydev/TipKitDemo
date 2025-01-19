@@ -10,7 +10,7 @@ import TipKit
 
 struct ContentView: View {
     
-    private let imageTip: ImageTip = ImageTip()
+    private let imageTip = ImageTip()
     
     @State private var imageName = "globe"
     @State private var textValue: String = "Hello, World!"
@@ -18,7 +18,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            TipView(imageTip)
+            TipView(imageTip, arrowEdge: .bottom)
             
             Image(systemName: imageName)
                 .imageScale(.large)
@@ -40,6 +40,14 @@ struct ContentView: View {
 struct ImageTip: Tip {
     var title: Text {
         Text("This is Image view")
+    }
+    
+    var message: Text? {
+        Text("You can change it too")
+    }
+    
+    var image : Image? {
+        Image(systemName: "dog")
     }
 }
 
