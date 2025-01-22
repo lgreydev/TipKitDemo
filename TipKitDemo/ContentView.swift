@@ -18,7 +18,19 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            TipView(imageTip, arrowEdge: .bottom)
+            TipView(imageTip, arrowEdge: .bottom) { action in
+                switch action.id {
+                case "change":
+                    imageName = "moon"
+                    textValue = "Zzzzz"
+                    imageTip.invalidate(reason: .actionPerformed)
+                case "close":
+                    print("closed")
+                    imageTip.invalidate(reason: .tipClosed)
+                default:
+                    break
+                }
+            }
             
             Image(systemName: imageName)
                 .imageScale(.large)
@@ -48,6 +60,14 @@ struct ImageTip: Tip {
     
     var image : Image? {
         Image(systemName: "dog")
+    }
+    
+    var actions: [Action] {
+        [
+            Action(id: "change", title: "Go to sleep"),
+            Action(id: "close", title: "Close")
+            
+        ]
     }
 }
 
