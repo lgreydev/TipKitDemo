@@ -9,25 +9,29 @@ import SwiftUI
 import TipKit
 
 struct ContentView: View {
+       
+    private let tipGroup = TipGroup {
+        TextTip()
+        ImageTip()
+    }
     
-    private let imageTip = ImageTip()
-    private let textTip = ImageTip()
+    private let countTip = CountTip()
     
     @State private var imageName = "globe"
-    @State private var textValue: String = "Hello, World!"
+    @State private var textValue = "Hello, World!"
     @State var count = 0
     
     var body: some View {
         VStack {
-            TipView(imageTip, arrowEdge: .bottom) { action in
+            TipView(tipGroup.currentTip as? ImageTip, arrowEdge: .bottom) { action in
                 switch action.id {
                 case "change":
                     imageName = "moon"
                     textValue = "Zzzzz"
-                    imageTip.invalidate(reason: .actionPerformed)
+                    tipGroup.currentTip?.invalidate(reason: .actionPerformed)
                 case "close":
                     print("closed")
-                    imageTip.invalidate(reason: .tipClosed)
+                    tipGroup.currentTip?.invalidate(reason: .tipClosed)
                 default:
                     break
                 }
@@ -38,21 +42,27 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             
             Text(textValue)
-                .popoverTip(textTip, arrowEdge: .top) { action in
+                .popoverTip(tipGroup.currentTip as? TextTip, arrowEdge: .top) { action in
                     switch action.id {
                     case "change":
                         textValue = "Hello!"
-                        imageTip.invalidate(reason: .actionPerformed)
+                        tipGroup.currentTip?.invalidate(reason: .actionPerformed)
                     case "close":
                         print("closed")
-                        imageTip.invalidate(reason: .tipClosed)
+                        tipGroup.currentTip?.invalidate(reason: .tipClosed)
                     default:
                         break
                     }
                 }
             
+            TipView(countTip)
+            
             Button("\(count)") {
                 count += 1
+                CountTip.isButtonTapped.toggle()
+                Task {
+                    await CountTip.didTriggerButtonEvent.donate()
+                }
             }
             .buttonStyle(.borderedProminent)
             .font(.largeTitle)
@@ -64,15 +74,15 @@ struct ContentView: View {
 
 struct ImageTip: Tip {
     var title: Text {
-        Text("This is Image view")
+        Text("Rest here and take a nap")
     }
     
     var message: Text? {
-        Text("You can change it too")
+        Text("You've seen too many")
     }
     
     var image : Image? {
-        Image(systemName: "dog")
+        Image(systemName: "moon")
     }
     
     var actions: [Action] {
@@ -85,11 +95,11 @@ struct ImageTip: Tip {
 
 struct TextTip: Tip {
     var title: Text {
-        Text("This is Image view")
+        Text("Take a little rest")
     }
     
     var message: Text? {
-        Text("You can change it too")
+        Text("You need to get some sleep.")
     }
     
     var image : Image? {
@@ -100,6 +110,36 @@ struct TextTip: Tip {
         [
             Action(id: "change", title: "Go to sleep"),
             Action(id: "close", title: "Close")
+        ]
+    }
+}
+
+struct CountTip: Tip {
+    var title: Text {
+        Text("How tired are you?")
+    }
+    
+    var message: Text? {
+        Text("How many hours do you want to sleep?")
+    }
+    
+    var image : Image? {
+        Image(systemName: "hand.tap.fill")
+    }
+    
+    @Parameter
+    static var isButtonTapped: Bool = false
+    
+    static let  didTriggerButtonEvent = Event(id: "didTriggerButtonEvent")
+    
+    var rules: [Rule] {
+        [
+            #Rule(Self.$isButtonTapped) {
+                $0 == true
+            },
+            #Rule(Self.didTriggerButtonEvent) {
+                $0.donations.count > 5
+            }
         ]
     }
 }
