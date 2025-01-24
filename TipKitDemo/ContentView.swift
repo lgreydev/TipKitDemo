@@ -11,23 +11,28 @@ import TipKit
 struct ContentView: View {
     
     private let imageTip = ImageTip()
-    private let textTip = ImageTip()
+    private let textTip = TextTip()
+    
+    private let tipGroup = TipGroup {
+        TextTip()
+        ImageTip()
+    }
     
     @State private var imageName = "globe"
-    @State private var textValue: String = "Hello, World!"
+    @State private var textValue = "Hello, World!"
     @State var count = 0
     
     var body: some View {
         VStack {
-            TipView(imageTip, arrowEdge: .bottom) { action in
+            TipView(tipGroup.currentTip as? ImageTip, arrowEdge: .bottom) { action in
                 switch action.id {
                 case "change":
                     imageName = "moon"
                     textValue = "Zzzzz"
-                    imageTip.invalidate(reason: .actionPerformed)
+                    tipGroup.currentTip?.invalidate(reason: .actionPerformed)
                 case "close":
                     print("closed")
-                    imageTip.invalidate(reason: .tipClosed)
+                    tipGroup.currentTip?.invalidate(reason: .tipClosed)
                 default:
                     break
                 }
@@ -38,14 +43,14 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             
             Text(textValue)
-                .popoverTip(textTip, arrowEdge: .top) { action in
+                .popoverTip(tipGroup.currentTip as? TextTip, arrowEdge: .top) { action in
                     switch action.id {
                     case "change":
                         textValue = "Hello!"
-                        imageTip.invalidate(reason: .actionPerformed)
+                        tipGroup.currentTip?.invalidate(reason: .actionPerformed)
                     case "close":
                         print("closed")
-                        imageTip.invalidate(reason: .tipClosed)
+                        tipGroup.currentTip?.invalidate(reason: .tipClosed)
                     default:
                         break
                     }
@@ -64,15 +69,15 @@ struct ContentView: View {
 
 struct ImageTip: Tip {
     var title: Text {
-        Text("This is Image view")
+        Text("Rest here and take a nap")
     }
     
     var message: Text? {
-        Text("You can change it too")
+        Text("You've seen too many")
     }
     
     var image : Image? {
-        Image(systemName: "dog")
+        Image(systemName: "moon")
     }
     
     var actions: [Action] {
@@ -85,11 +90,11 @@ struct ImageTip: Tip {
 
 struct TextTip: Tip {
     var title: Text {
-        Text("This is Image view")
+        Text("Take a little rest")
     }
     
     var message: Text? {
-        Text("You can change it too")
+        Text("You need to get some sleep.")
     }
     
     var image : Image? {
