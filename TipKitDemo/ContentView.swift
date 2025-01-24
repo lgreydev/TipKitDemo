@@ -9,14 +9,13 @@ import SwiftUI
 import TipKit
 
 struct ContentView: View {
-    
-    private let imageTip = ImageTip()
-    private let textTip = TextTip()
-    
+       
     private let tipGroup = TipGroup {
         TextTip()
         ImageTip()
     }
+    
+    private let countTip = CountTip()
     
     @State private var imageName = "globe"
     @State private var textValue = "Hello, World!"
@@ -56,8 +55,11 @@ struct ContentView: View {
                     }
                 }
             
+            TipView(countTip)
+            
             Button("\(count)") {
                 count += 1
+                CountTip.isButtonTapped.toggle()
             }
             .buttonStyle(.borderedProminent)
             .font(.largeTitle)
@@ -105,6 +107,31 @@ struct TextTip: Tip {
         [
             Action(id: "change", title: "Go to sleep"),
             Action(id: "close", title: "Close")
+        ]
+    }
+}
+
+struct CountTip: Tip {
+    var title: Text {
+        Text("How tired are you?")
+    }
+    
+    var message: Text? {
+        Text("How many hours do you want to sleep?")
+    }
+    
+    var image : Image? {
+        Image(systemName: "hand.tap.fill")
+    }
+    
+    @Parameter
+    static var isButtonTapped: Bool = false
+    
+    var rules: [Rule] {
+        [
+            #Rule(Self.$isButtonTapped) {
+                $0 == true
+            }
         ]
     }
 }
